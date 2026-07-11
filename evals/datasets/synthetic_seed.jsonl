@@ -1,0 +1,30 @@
+{"id": "seed-001", "text": "Hope all is well! Everything is going very well and you were all so kind. I have noticed a little swelling in my cheek and the tooth is still sensitive to cold, but nothing to worry about. I finished my chemo about four weeks ago so I'm just glad to be getting things taken care of!", "label": "red", "notes": "SPEC §2.2 archetype: warmest tone, swelling + cold sensitivity + recent chemo. Any sentiment-based classifier files this green."}
+{"id": "seed-002", "text": "ok", "label": "yellow", "notes": "SPEC §2.3: terse is not the same as well"}
+{"id": "seed-003", "text": "I'm doing ok", "label": "yellow", "notes": "SPEC §2.3 verbatim example"}
+{"id": "seed-004", "text": "fine", "label": "yellow", "notes": "SPEC §2.3 verbatim example"}
+{"id": "seed-005", "text": "👍", "label": "yellow", "notes": "bare emoji = vague non-answer"}
+{"id": "seed-006", "text": "No pain at all today, so much better than yesterday. Thank you for checking!", "label": "green", "notes": "clearly well, specific, no question"}
+{"id": "seed-007", "text": "All good — ate dinner normally, zero pain, slept through the night.", "label": "green", "notes": "clearly well, specific"}
+{"id": "seed-008", "text": "He is doing good", "label": "green", "expect_proxy": true, "notes": "SPEC §2.5 verbatim example: proxy reply, affirmative"}
+{"id": "seed-009", "text": "This is her husband — her face looks more swollen than it did yesterday", "label": "red", "expect_proxy": true, "notes": "SPEC §2.5: distress about someone else must not be under-weighted"}
+{"id": "seed-010", "text": "Feeling fine! Quick question though — is coffee ok tomorrow morning?", "label": "yellow", "notes": "SPEC §3 yellow category: diet question"}
+{"id": "seed-011", "text": "When should I take the next ibuprofen, before or after eating?", "label": "yellow", "notes": "SPEC §3 yellow category: medication timing"}
+{"id": "seed-012", "text": "Is it normal for the tooth to feel a little high when I bite down?", "label": "yellow", "notes": "SPEC §3 yellow categories: 'is this normal' + temporary crown behavior"}
+{"id": "seed-013", "text": "My lip is still numb on that side, is that normal?", "label": "red", "notes": "SPEC §3: altered sensation/numbness is red even framed as a question"}
+{"id": "seed-014", "text": "The temporary filling came out while I was flossing tonight", "label": "red", "notes": "SPEC §3: loose or lost temporary"}
+{"id": "seed-015", "text": "I think I might be having a reaction to the antibiotic — I've got a rash on my arms", "label": "red", "notes": "SPEC §3: medication reaction"}
+{"id": "seed-016", "text": "Honestly the pain is getting worse tonight and the pills aren't touching it", "label": "red", "notes": "worsening + uncontrolled pain"}
+{"id": "seed-017", "text": "A little sore but the ibuprofen is handling it, and it's definitely better than yesterday.", "label": "yellow", "notes": "expected controlled improving pain — yellow by default decision (not red, not green); see README Decisions"}
+{"id": "seed-018", "text": "Feeling great, no issues at all. You and your team were absolutely wonderful, best dental experience I've ever had!", "label": "green", "notes": "SPEC §3 green subtype: unprompted praise → review opportunity"}
+{"id": "seed-019", "text": "Thank you so much for checking in, you're so sweet! My cheek has puffed up a bit since this morning though.", "label": "red", "notes": "SPEC §2.2: warm tone + swelling"}
+{"id": "seed-020", "text": "Who is this?", "label": "yellow", "notes": "possible wrong number / OCR misread — needs a human look (SPEC §5.4 risk)"}
+{"id": "seed-021", "text": "I think you have the wrong number", "label": "yellow", "notes": "wrong number — needs a human look"}
+{"id": "seed-022", "text": "Running a bit of a fever tonight, 100.8", "label": "red", "notes": "fever post-op"}
+{"id": "seed-023", "text": "Still bleeding a little when I rinse, about the same as this morning", "label": "yellow", "notes": "mild stable bleeding — yellow by default decision"}
+{"id": "seed-024", "text": "It aches when I bite down but otherwise I'm fine", "label": "yellow", "notes": "SPEC §7: 'pain when biting' theme — symptom present, not red-severity"}
+{"id": "seed-025", "text": "My whole jaw is throbbing, worst pain I have ever had", "label": "red", "notes": "severe pain"}
+{"id": "seed-026", "text": "Doing alright I think. I'm on immunosuppressants after my kidney transplant, and the tooth is a bit tender today.", "label": "red", "notes": "SPEC §3: immunocompromise + any symptom"}
+{"id": "seed-027", "text": "Thanks!", "label": "yellow", "notes": "polite but zero status information — bias to yellow under uncertainty (SPEC §2.6)"}
+{"id": "seed-028", "text": "No complaints at all. See you Tuesday for the second visit.", "label": "green", "context": {"appointment_number": 1}, "notes": "clearly well; appointment 1 of 2"}
+{"id": "seed-029", "text": "Could you have the doctor call me when he gets a chance? The throbbing started up again around dinner.", "label": "red", "notes": "requests contact + recurring symptom"}
+{"id": "seed-030", "text": "Mom's resting now. She said the numbness from the shot never fully wore off on her chin.", "label": "red", "expect_proxy": true, "notes": "proxy + persistent numbness (altered sensation)"}

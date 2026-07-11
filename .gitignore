@@ -1,0 +1,16 @@
+# PHI: real patient data must never enter this repository.
+data/
+evals/results/
+.eval_cache/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+build/
+dist/
