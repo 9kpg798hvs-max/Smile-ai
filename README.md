@@ -6,13 +6,15 @@ check-ins → AI-triaged reply inbox with human-approved responses.
 - **Design package** (architecture, schema, roles, screens, HIPAA, phases,
   acceptance criteria, risks): [docs/](docs/) — start with
   [docs/00-scope-and-reconciliation.md](docs/00-scope-and-reconciliation.md)
-- **Build status**: Phases 0–3 implemented and tested — AI triage engine;
+- **Build status**: Phases 0–4 implemented and tested — AI triage engine;
   schema/auth/RBAC/audit; schedule intake with OCR review; doctor approval →
-  scheduled sending with duplicate prevention. Phases 4–7 (inbox & AI replies,
-  configuration screens, analytics, hardening) per
-  [docs/06-delivery-plan.md](docs/06-delivery-plan.md). **All integrations are
-  MOCK** (OCR, SMS — see `/api/v1/health`); mock patient data only; no
-  frontend yet — the API is the surface so far.
+  scheduled sending with duplicate prevention; reply inbox with AI
+  category/urgency, escalation-only red drafts, urgent alerts, and
+  human-approved sending. Phases 5–7 (configuration screens, analytics,
+  hardening) per [docs/06-delivery-plan.md](docs/06-delivery-plan.md).
+  **All integrations are MOCK** (OCR, SMS, reply AI in dev — see
+  `/api/v1/health`); mock patient data only; no frontend yet — the API is
+  the surface so far.
 
 ```sh
 pip install -e ".[dev]"

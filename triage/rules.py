@@ -20,9 +20,11 @@ not green (a symptom is never a green).
 """
 
 from .schema import (
+    Category,
     Color,
     ControlStatus,
     Findings,
+    QuestionTopic,
     Severity,
     Symptom,
     SymptomCategory,
@@ -62,6 +64,9 @@ def triage(findings: Findings, context: VisitContext | None = None) -> TriageRes
 
     red_reasons: list[str] = []
     yellow_reasons: list[str] = []
+
+    for signal in findings.emergency_signals:
+        red_reasons.append(f'emergency language: "{signal}"')
 
     for s in findings.symptoms:
         reason = _symptom_red_reason(s)
@@ -112,3 +117,37 @@ def triage(findings: Findings, context: VisitContext | None = None) -> TriageRes
         review_request_opportunity=(color is Color.GREEN and findings.unprompted_praise),
         findings=findings,
     )
+
+
+def categorize(findings: Findings, color: Color) -> Category:
+    """Map findings to the SmileFlow reply category (topical, deterministic).
+
+    The category describes WHAT the reply is about; `color` carries HOW
+    urgent it is. Priority order mirrors clinical salience: emergency
+    language first, then swelling, medication, pain.
+    """
+    symptom_categories = {s.category for s in findings.symptoms}
+
+    if findings.emergency_signals:
+        return Category.EMERGENCY
+    if SymptomCategory.SWELLING in symptom_categories:
+        return Category.SWELLING
+    if (
+        SymptomCategory.MEDICATION_REACTION in symptom_categories
+        or QuestionTopic.MEDICATION in findings.question_topics
+    ):
+        return Category.MEDICATION_QUESTION
+    if SymptomCategory.PAIN in symptom_categories:
+        return Category.PAIN
+    if QuestionTopic.APPOINTMENT in findings.question_topics or (
+        findings.requests_contact and color is not Color.RED
+    ):
+        return Category.APPOINTMENT_REQUEST
+    if color is Color.GREEN and findings.states_doing_well:
+        return Category.DOING_WELL
+    if findings.questions or findings.symptoms or findings.requests_contact:
+        # Remaining symptomatic reds (numbness, lost temporary, fever…) and
+        # all other questions/mild concerns land here; urgency still governs
+        # alerting, so nothing urgent is hidden by this bucket.
+        return Category.QUESTION_OR_MILD_CONCERN
+    return Category.OTHER

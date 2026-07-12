@@ -10,10 +10,12 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from .ai import MockDraftProvider
 from .db import Base, make_engine, make_session_factory
 from .ocr import MockOCRProvider
 from .routes import approval as approval_routes
 from .routes import auth as auth_routes
+from .routes import inbox as inbox_routes
 from .routes import intake as intake_routes
 from .sms import MockSMSProvider
 
@@ -27,6 +29,8 @@ def create_app(
     cookie_secure: bool = True,
     ocr_provider=None,
     sms_provider=None,
+    reply_extractor=None,
+    draft_provider=None,
     uploads_dir: str | Path | None = None,
     scheduler_interval: float | None = None,
 ) -> FastAPI:
@@ -40,6 +44,10 @@ def create_app(
     # MOCK by default: dev/test never talk to a real OCR or SMS backend.
     app.state.ocr_provider = ocr_provider or MockOCRProvider()
     app.state.sms_provider = sms_provider or MockSMSProvider()
+    # None = construct the real Claude extractor lazily on first inbound reply
+    # (fails safe to yellow + manual review if no API key is configured).
+    app.state.reply_extractor = reply_extractor
+    app.state.draft_provider = draft_provider or MockDraftProvider()
     app.state.uploads_dir = Path(
         uploads_dir or os.environ.get("UPLOADS_DIR", "var/uploads")
     )
@@ -51,12 +59,18 @@ def create_app(
             "mocked": {
                 "ocr": app.state.ocr_provider.model == "MOCK",
                 "sms": getattr(app.state.sms_provider, "name", "") == "mock",
+                "reply_ai": (
+                    "lazy-real" if app.state.reply_extractor is None
+                    else getattr(app.state.reply_extractor, "model", "unknown")
+                ),
+                "drafts": getattr(app.state.draft_provider, "name", "") == "mock",
             },
         }
 
     app.include_router(auth_routes.router)
     app.include_router(intake_routes.router)
     app.include_router(approval_routes.router)
+    app.include_router(inbox_routes.router)
 
     interval = scheduler_interval
     if interval is None:

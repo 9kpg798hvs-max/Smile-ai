@@ -4,7 +4,7 @@ results remain comparable across runs (the eval cache also keys on the hash).
 
 import hashlib
 
-PROMPT_VERSION = "1"
+PROMPT_VERSION = "2"
 
 SYSTEM_PROMPT = """\
 You are a clinical-content extractor for an endodontic (root canal) practice's \
@@ -41,7 +41,16 @@ temperature_sensitivity.
 
 4. Questions: record every question the patient asks, including implicit ones \
 ("wondering if I can eat solid food" counts). "Is this normal?" attached to a \
-symptom is BOTH a symptom and a question.
+symptom is BOTH a symptom and a question. For each question also record its \
+topic in question_topics: medication (timing, dosage, interactions), diet \
+(what they can eat/drink), healing_or_symptom ("is this normal"), appointment \
+(wants to come in, reschedule, be seen), or other.
+
+4b. emergency_signals: record the verbatim span for any mention of difficulty \
+breathing or swallowing, throat or airway swelling, swelling spreading toward \
+the eye or neck, bleeding that will not stop, an allergic reaction (hives, \
+lip/face swelling after a medication), or fever with spreading infection. \
+These are extracted IN ADDITION to the corresponding symptom entries.
 
 5. is_vague_or_minimal: true when the reply is a non-specific non-answer — \
 "ok", "fine", "I'm doing ok", "alright", a bare thumbs-up or emoji. These \

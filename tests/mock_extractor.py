@@ -8,6 +8,7 @@ triage package — never use it for real triage.
 from triage.schema import (
     ControlStatus,
     Findings,
+    QuestionTopic,
     Severity,
     Symptom,
     SymptomCategory,
@@ -36,8 +37,8 @@ class KeywordExtractor:
             add(SymptomCategory.SWELLING, "swelling")
         if "numb" in low and "number" not in low:
             add(SymptomCategory.ALTERED_SENSATION, "numbness")
-        if "came out" in low:
-            add(SymptomCategory.TEMPORARY_RESTORATION_PROBLEM, "temporary came out")
+        if "came out" in low or "came off" in low or "fell out" in low:
+            add(SymptomCategory.TEMPORARY_RESTORATION_PROBLEM, "restoration came out/off")
         if "rash" in low or "reaction to" in low:
             add(SymptomCategory.MEDICATION_REACTION, "medication reaction")
         if "fever" in low:
@@ -64,10 +65,26 @@ class KeywordExtractor:
                 control = ControlStatus.CONTROLLED
             add(SymptomCategory.PAIN, "pain", severity, trajectory, control)
 
+        for signal in ("hard to swallow", "trouble breathing", "can't breathe",
+                       "won't stop bleeding", "bleeding won't stop", "allergic",
+                       "throat is swelling", "hives"):
+            if signal in low:
+                f.emergency_signals.append(signal)
+
         if "who is this" in low or "wrong number" in low:
             f.is_unintelligible_or_unrelated = True
         elif "?" in text:
             f.questions.append(text[text.rfind("?") - 40 : text.rfind("?") + 1].strip())
+            if any(w in low for w in ("ibuprofen", "antibiotic", "medication", "pill", "dose")):
+                f.question_topics.append(QuestionTopic.MEDICATION)
+            elif any(w in low for w in ("eat", "food", "coffee", "drink")):
+                f.question_topics.append(QuestionTopic.DIET)
+            elif "normal" in low:
+                f.question_topics.append(QuestionTopic.HEALING_OR_SYMPTOM)
+            elif any(w in low for w in ("come in", "appointment", "reschedule", "see you")):
+                f.question_topics.append(QuestionTopic.APPOINTMENT)
+            else:
+                f.question_topics.append(QuestionTopic.OTHER)
 
         if low.strip(" .!") in {"ok", "fine", "i'm doing ok", "alright", "👍", "thanks"}:
             f.is_vague_or_minimal = True

@@ -54,6 +54,27 @@ class ControlStatus(str, Enum):
     UNSTATED = "unstated"
 
 
+class QuestionTopic(str, Enum):
+    MEDICATION = "medication"
+    DIET = "diet"
+    HEALING_OR_SYMPTOM = "healing_or_symptom"  # "is this normal?"
+    APPOINTMENT = "appointment"
+    OTHER = "other"
+
+
+class Category(str, Enum):
+    """SmileFlow reply categories. Values match server enum by design."""
+
+    DOING_WELL = "doing_well"
+    PAIN = "pain"
+    SWELLING = "swelling"
+    MEDICATION_QUESTION = "medication_question"
+    EMERGENCY = "emergency"
+    APPOINTMENT_REQUEST = "appointment_request"
+    QUESTION_OR_MILD_CONCERN = "question_or_mild_concern"
+    OTHER = "other"
+
+
 class Symptom(BaseModel):
     quote: str = Field(description="Verbatim span from the reply that reports this symptom")
     category: SymptomCategory
@@ -69,6 +90,19 @@ class Findings(BaseModel):
     questions: list[str] = Field(
         default_factory=list,
         description="Questions the patient asks, verbatim or near-verbatim",
+    )
+    question_topics: list[QuestionTopic] = Field(
+        default_factory=list,
+        description="Topic of each question asked (medication, diet, appointment, ...)",
+    )
+    emergency_signals: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Verbatim spans indicating a possible emergency: difficulty "
+            "breathing or swallowing, throat/airway swelling, uncontrolled "
+            "bleeding, allergic reaction (hives, facial/lip swelling after "
+            "medication), spreading infection with fever"
+        ),
     )
     is_vague_or_minimal: bool = Field(
         default=False,
