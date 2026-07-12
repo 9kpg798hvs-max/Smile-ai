@@ -3,6 +3,12 @@ data/
 evals/results/
 .eval_cache/
 
+# Uploaded schedule files (may contain PHI in production)
+var/
+
+# Local dev database
+*.db
+
 # Secrets
 .env
 

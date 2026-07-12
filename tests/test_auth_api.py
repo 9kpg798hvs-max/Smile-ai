@@ -27,8 +27,10 @@ def login(client, email="doctor@mock.test", password=DEFAULT_PASSWORD):
     return client.post("/api/v1/auth/login", json={"email": email, "password": password})
 
 
-def test_health(client):
-    assert client.get("/api/v1/health").json() == {"status": "ok"}
+def test_health_reports_mock_providers(client):
+    body = client.get("/api/v1/health").json()
+    assert body["status"] == "ok"
+    assert body["mocked"]["ocr"] is True  # dev/test must never use a real backend
 
 
 def test_login_success_sets_httponly_cookie(client):
