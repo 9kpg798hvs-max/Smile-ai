@@ -1,8 +1,31 @@
-# Post-Op Check-In Triage — Classifier + Eval Harness
+# SmileFlow AI — Dental Patient Follow-Up Platform
 
-Implementation of build-order step 3 from [SPEC.md](SPEC.md): the
-green/yellow/red triage classifier and the eval harness that proves it
-against a labeled corpus. No UI, no telephony, no drafting yet.
+AI-powered post-op follow-up: OCR schedule intake → doctor-approved SMS
+check-ins → AI-triaged reply inbox with human-approved responses.
+
+- **Design package** (architecture, schema, roles, screens, HIPAA, phases,
+  acceptance criteria, risks): [docs/](docs/) — start with
+  [docs/00-scope-and-reconciliation.md](docs/00-scope-and-reconciliation.md)
+- **Build status**: Phase 0 (AI triage engine) and Phase 1 (schema, auth,
+  RBAC, audit) are implemented and tested. Phases 2–7 per
+  [docs/06-delivery-plan.md](docs/06-delivery-plan.md). All integrations are
+  MOCK; mock patient data only.
+
+```sh
+pip install -e ".[dev]"
+pytest                      # 119 offline tests
+python -m server.seed       # seed MOCK data (logins printed)
+uvicorn server.app:create_app --factory   # API at /api/v1
+```
+
+---
+
+## Phase 0 — Post-Op Reply Triage Engine
+
+The green/yellow/red triage classifier and the eval harness that proves it
+against a labeled corpus (original [SPEC.md](SPEC.md) build-order step 3).
+It will be extended to emit the eight SmileFlow reply categories; the safety
+design below is unchanged.
 
 ## Safety architecture
 
