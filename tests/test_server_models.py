@@ -23,6 +23,16 @@ def db():
 @pytest.fixture()
 def seeded(db):
     data = seed(db)
+    # Baseline visit for the dedup tests (seed itself creates no visits).
+    db.add(Visit(
+        practice_id=data["practice"].id,
+        office_id=data["office"].id,
+        patient_id=data["patients"][0].id,
+        doctor_id=data["users"]["doctor"].id,
+        visit_date=datetime.date.today(),
+        procedure="Root canal #19",
+        source="manual",
+    ))
     db.commit()
     return data
 

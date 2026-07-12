@@ -20,7 +20,6 @@ from .models import (
     Role,
     Template,
     User,
-    Visit,
 )
 from .security import hash_password
 
@@ -98,15 +97,6 @@ def seed(db: Session) -> dict:
         db.add(p)
         db.flush()
         patients.append(p)
-        db.add(Visit(
-            practice_id=practice.id,
-            office_id=office.id,
-            patient_id=p.id,
-            doctor_id=doctor.id,
-            visit_date=datetime.date.today(),
-            procedure="Root canal #19" if i == 0 else "Crown prep",
-            source="manual",
-        ))
 
     return {
         "practice": practice,
