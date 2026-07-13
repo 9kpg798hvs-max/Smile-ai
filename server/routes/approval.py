@@ -146,12 +146,12 @@ def exclude_follow_up(
 
 @router.post("/webhooks/sms/status")
 async def sms_status_webhook(request: Request, db: Session = Depends(get_db)):
-    """Provider delivery-status callback.
+    """Provider delivery-status callback. Shared-secret verified when
+    configured; Twilio signature verification must replace it before
+    internet exposure (docs/05)."""
+    from ..hardening import verify_webhook_secret
 
-    MOCK provider: unsigned JSON {provider_message_id, event, ...}.
-    Twilio: signature verification is a Phase 7 hardening item (docs/05) and
-    MUST land before this endpoint is exposed to the internet.
-    """
+    verify_webhook_secret(request)
     payload = await request.json()
     ok = apply_delivery_status(
         db,

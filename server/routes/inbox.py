@@ -308,9 +308,11 @@ def approve_and_send(
 
 @router.post("/webhooks/sms/inbound")
 async def inbound_webhook(request: Request, db: Session = Depends(get_db)):
-    """Inbound SMS callback. MOCK provider: unsigned JSON. Twilio signature
-    verification is a Phase 7 hardening item (docs/05) — required before
-    internet exposure."""
+    """Inbound SMS callback. Shared-secret verified when configured; Twilio
+    signature verification must replace it before internet exposure (docs/05)."""
+    from ..hardening import verify_webhook_secret
+
+    verify_webhook_secret(request)
     payload = await request.json()
     message = inbox_service.handle_inbound(
         db,

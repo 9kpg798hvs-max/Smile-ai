@@ -48,6 +48,9 @@ def _as_utc(dt: datetime.datetime) -> datetime.datetime:
 
 @router.post("/login")
 def login(body: LoginRequest, request: Request, response: Response, db: Session = Depends(get_db)):
+    from ..hardening import enforce_login_rate_limit
+
+    enforce_login_rate_limit(request)
     user = db.execute(select(User).where(User.email == body.email.lower())).scalar_one_or_none()
     now = utcnow()
 

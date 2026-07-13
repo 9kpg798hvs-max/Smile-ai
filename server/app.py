@@ -42,7 +42,11 @@ def create_app(
     engine = engine or make_engine()
     Base.metadata.create_all(engine)
 
-    app = FastAPI(title="SmileFlow AI", version="0.3.0")
+    app = FastAPI(title="SmileFlow AI", version="0.4.0")
+    from .hardening import install_security_headers, make_login_limiter
+
+    install_security_headers(app)
+    app.state.login_limiter = make_login_limiter()
     app.state.engine = engine
     app.state.session_factory = make_session_factory(engine)
     app.state.cookie_secure = cookie_secure
