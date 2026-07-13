@@ -12,9 +12,19 @@ check-ins → AI-triaged reply inbox with human-approved responses.
   category/urgency, escalation-only red drafts, urgent alerts, and
   human-approved sending. Phases 5–7 (configuration screens, analytics,
   hardening) per [docs/06-delivery-plan.md](docs/06-delivery-plan.md).
-  **All integrations are MOCK** (OCR, SMS, reply AI in dev — see
-  `/api/v1/health`); mock patient data only; no frontend yet — the API is
-  the surface so far.
+  A React web interface (`web/`) covers login, dashboard, inbox/thread,
+  doctor approvals, schedule intake, and notifications — browser-verified
+  end to end. Remaining screens (templates editor, admin, analytics, logs)
+  have working APIs but no UI yet. **All integrations are MOCK** (OCR, SMS,
+  reply AI in dev — see `/api/v1/health` and the in-app banner); mock
+  patient data only.
+
+```sh
+# Run the full app (API + UI) locally with mock providers:
+pip install -e ".[dev]" && (cd web && npm install && npm run build)
+python -m server.seed
+uvicorn server.app:create_app --factory   # open http://localhost:8000
+```
 
 ```sh
 pip install -e ".[dev]"
