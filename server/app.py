@@ -87,7 +87,29 @@ def create_app(
         interval = float(os.environ.get("SCHEDULER_INTERVAL_SECONDS", "0"))
     if interval > 0:
         _attach_send_worker(app, interval)
+
+    _mount_spa(app)
     return app
+
+
+def _mount_spa(app: FastAPI) -> None:
+    """Serve the built frontend (web/dist) when present; API routes keep
+    priority, and unknown non-API paths fall through to the SPA router."""
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    dist = Path(os.environ.get("WEB_DIST", Path(__file__).parent.parent / "web" / "dist"))
+    index = dist / "index.html"
+    if not index.exists():
+        return
+    app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str):
+        candidate = (dist / path).resolve()
+        if path and candidate.is_file() and candidate.is_relative_to(dist.resolve()):
+            return FileResponse(candidate)
+        return FileResponse(index)
 
 
 def _attach_send_worker(app: FastAPI, interval: float) -> None:

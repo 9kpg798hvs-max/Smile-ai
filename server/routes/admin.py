@@ -73,6 +73,24 @@ def update_office(
     return {"ok": True}
 
 
+# Doctors list for assignment dropdowns — available to all clinical roles
+# (names only, no admin data).
+@router.get("/doctors")
+def list_doctors(
+    user: User = Depends(require(Permission.VIEW_FOLLOW_UPS)),
+    db: Session = Depends(get_db),
+):
+    query = select(User).where(User.role == Role.DOCTOR, User.is_active)
+    if user.practice_id is not None:
+        query = query.where(User.practice_id == user.practice_id)
+    doctors = db.execute(query).scalars().all()
+    out = []
+    for d in doctors:
+        profile = db.get(DoctorProfile, d.id)
+        out.append({"id": d.id, "display_name": profile.display_name if profile else d.full_name})
+    return out
+
+
 # --- users ----------------------------------------------------------------------
 
 class UserBody(BaseModel):

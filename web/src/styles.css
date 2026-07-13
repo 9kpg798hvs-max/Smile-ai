@@ -1,0 +1,157 @@
+/* SmileFlow — design tokens per dataviz reference palette.
+   Status colors are reserved for triage state and always ship with a text
+   label (never color alone). */
+
+:root {
+  --surface-0: #f4f4f2;
+  --surface-1: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-3: #8a887f;
+  --line: #e4e3de;
+  --accent: #2a78d6;
+  --accent-ink: #ffffff;
+  --good: #0ca30c;
+  --warning: #b97e00; /* text-safe step of warning on light surface */
+  --warning-bg: #fff4d6;
+  --critical: #d03b3b;
+  --critical-bg: #fbe9e9;
+  --good-bg: #e7f6e7;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-0: #111110;
+    --surface-1: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --ink-3: #8a887f;
+    --line: #33322f;
+    --accent: #3987e5;
+    --warning: #fab219;
+    --warning-bg: #3a2f10;
+    --critical-bg: #3d1d1d;
+    --good-bg: #14320f;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font: 15px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--surface-0);
+  color: var(--ink);
+}
+a { color: var(--accent); text-decoration: none; }
+button { font: inherit; }
+
+/* --- shell ------------------------------------------------------------- */
+.shell { display: flex; min-height: 100%; }
+.sidebar {
+  width: 220px; flex-shrink: 0; padding: 20px 14px;
+  background: var(--surface-1); border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.brand { font-weight: 700; font-size: 17px; margin: 2px 8px 18px; }
+.brand small { display: block; color: var(--ink-3); font-weight: 400; font-size: 11px; }
+.nav-link {
+  display: block; padding: 8px 10px; border-radius: 8px; color: var(--ink-2);
+}
+.nav-link.active { background: var(--accent); color: var(--accent-ink); }
+.nav-link:not(.active):hover { background: var(--surface-0); }
+.sidebar .spacer { flex: 1; }
+.whoami { font-size: 12px; color: var(--ink-3); padding: 8px 10px; border-top: 1px solid var(--line); }
+.mock-banner {
+  font-size: 11px; padding: 6px 10px; border-radius: 8px;
+  background: var(--warning-bg); color: var(--warning); font-weight: 600;
+}
+.content { flex: 1; padding: 28px 32px; max-width: 1080px; }
+
+h1 { font-size: 20px; margin: 0 0 18px; }
+h2 { font-size: 15px; margin: 22px 0 10px; color: var(--ink-2); }
+
+/* --- cards & tiles ------------------------------------------------------- */
+.card {
+  background: var(--surface-1); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px 18px;
+}
+.hero { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+.hero .value { font-size: 52px; font-weight: 600; line-height: 1; }
+.hero .label { color: var(--ink-2); }
+.tile-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.tile { display: block; color: inherit; }
+.tile .label { font-size: 12.5px; color: var(--ink-2); }
+.tile .value { font-size: 26px; font-weight: 600; margin-top: 2px; }
+.tile.status-critical { border-left: 4px solid var(--critical); }
+.tile.status-warning  { border-left: 4px solid var(--warning); }
+.tile.status-good     { border-left: 4px solid var(--good); }
+.tile:hover { border-color: var(--accent); }
+
+/* --- badges (status: icon/dot + label, never color alone) ----------------- */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px;
+  padding: 2px 9px; border-radius: 99px; text-transform: uppercase;
+}
+.badge::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: currentColor; }
+.badge.red    { color: var(--critical); background: var(--critical-bg); }
+.badge.yellow { color: var(--warning);  background: var(--warning-bg); }
+.badge.green  { color: var(--good);     background: var(--good-bg); }
+.badge.neutral{ color: var(--ink-2); background: var(--surface-0); }
+
+.chip {
+  font-size: 12px; color: var(--ink-2); background: var(--surface-0);
+  border: 1px solid var(--line); padding: 2px 8px; border-radius: 99px;
+}
+
+/* --- forms ---------------------------------------------------------------- */
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--surface-1);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+textarea { width: 100%; resize: vertical; }
+.btn {
+  border: 1px solid var(--line); background: var(--surface-1); color: var(--ink);
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { color: var(--critical); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.error { color: var(--critical); font-size: 13.5px; }
+.muted { color: var(--ink-3); font-size: 13px; }
+
+/* --- tables ----------------------------------------------------------------- */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; color: var(--ink-3); font-weight: 600; padding: 8px 10px; }
+td { padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
+td input, td select { width: 100%; padding: 5px 8px; }
+tr.excluded td { opacity: 0.5; text-decoration: line-through; }
+tr.excluded td:last-child, tr.excluded td.controls { text-decoration: none; opacity: 1; }
+.low-confidence { outline: 2px solid var(--warning); border-radius: 6px; }
+
+/* --- inbox / thread ------------------------------------------------------------ */
+.conv-row {
+  display: flex; gap: 12px; align-items: center; padding: 12px 14px;
+  border-top: 1px solid var(--line); color: inherit;
+}
+.conv-row:hover { background: var(--surface-0); }
+.conv-row .who { font-weight: 600; min-width: 150px; }
+.conv-row .preview { color: var(--ink-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.unread-dot { width: 8px; height: 8px; border-radius: 99px; background: var(--accent); flex-shrink: 0; }
+
+.thread { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.bubble { max-width: 72%; padding: 10px 14px; border-radius: 14px; }
+.bubble.in { background: var(--surface-1); border: 1px solid var(--line); align-self: flex-start; }
+.bubble.out { background: var(--accent); color: var(--accent-ink); align-self: flex-end; }
+.bubble .meta { font-size: 11px; opacity: 0.75; margin-top: 5px; }
+.ai-panel { border-left: 3px solid var(--accent); }
+
+.login-wrap { display: grid; place-items: center; min-height: 100%; }
+.login-card { width: 340px; display: flex; flex-direction: column; gap: 10px; }
