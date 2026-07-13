@@ -13,10 +13,14 @@ from fastapi import FastAPI
 from .ai import MockDraftProvider
 from .db import Base, make_engine, make_session_factory
 from .ocr import MockOCRProvider
+from .routes import admin as admin_routes
 from .routes import approval as approval_routes
 from .routes import auth as auth_routes
 from .routes import inbox as inbox_routes
 from .routes import intake as intake_routes
+from .routes import notifications as notification_routes
+from .routes import settings as settings_routes
+from .routes import templates as template_routes
 from .sms import MockSMSProvider
 
 # Re-exports kept stable for tests and callers.
@@ -71,6 +75,10 @@ def create_app(
     app.include_router(intake_routes.router)
     app.include_router(approval_routes.router)
     app.include_router(inbox_routes.router)
+    app.include_router(template_routes.router)
+    app.include_router(settings_routes.router)
+    app.include_router(admin_routes.router)
+    app.include_router(notification_routes.router)
 
     interval = scheduler_interval
     if interval is None:
@@ -85,6 +93,7 @@ def _attach_send_worker(app: FastAPI, interval: float) -> None:
     import asyncio
     import logging
 
+    from .notify import daily_summaries, unanswered_reminders
     from .scheduler import run_pending
 
     logger = logging.getLogger("smileflow.scheduler")
@@ -94,6 +103,9 @@ def _attach_send_worker(app: FastAPI, interval: float) -> None:
             try:
                 with app.state.session_factory() as db:
                     stats = run_pending(db, app.state.sms_provider)
+                    # Idempotent generators — safe to run every tick.
+                    unanswered_reminders(db)
+                    daily_summaries(db)
                     db.commit()
                     if stats["due"]:
                         logger.info("send worker: %s", stats)
