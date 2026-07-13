@@ -19,6 +19,7 @@ from .routes import auth as auth_routes
 from .routes import inbox as inbox_routes
 from .routes import intake as intake_routes
 from .routes import notifications as notification_routes
+from .routes import reporting as reporting_routes
 from .routes import settings as settings_routes
 from .routes import templates as template_routes
 from .sms import MockSMSProvider
@@ -79,6 +80,7 @@ def create_app(
     app.include_router(settings_routes.router)
     app.include_router(admin_routes.router)
     app.include_router(notification_routes.router)
+    app.include_router(reporting_routes.router)
 
     interval = scheduler_interval
     if interval is None:
