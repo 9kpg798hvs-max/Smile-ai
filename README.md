@@ -12,12 +12,15 @@ check-ins → AI-triaged reply inbox with human-approved responses.
   category/urgency, escalation-only red drafts, urgent alerts, and
   human-approved sending. Phases 5–7 (configuration screens, analytics,
   hardening) per [docs/06-delivery-plan.md](docs/06-delivery-plan.md).
-  A React web interface (`web/`) covers login, dashboard, inbox/thread,
-  doctor approvals, schedule intake, and notifications — browser-verified
-  end to end. Remaining screens (templates editor, admin, analytics, logs)
-  have working APIs but no UI yet. **All integrations are MOCK** (OCR, SMS,
-  reply AI in dev — see `/api/v1/health` and the in-app banner); mock
-  patient data only.
+  A React web interface (`web/`) covers all 21 required screens — login,
+  dashboard, inbox/thread, approvals, intake, notifications, templates,
+  settings, analytics, admin, and logs — browser-verified end to end
+  (Playwright). Phase 7 hardening is partly done (login rate limiting,
+  security headers, webhook shared-secret, backup script); remaining items
+  (Twilio signature verification, 2FA) are on the [HIPAA
+  checklist](docs/05-security-hipaa.md) and mostly need real provider
+  accounts. **All integrations are MOCK** (OCR, SMS, reply AI in dev — see
+  `/api/v1/health` and the in-app banner); mock patient data only.
 
 ```sh
 # Run the full app (API + UI) locally with mock providers:
