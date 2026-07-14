@@ -45,6 +45,12 @@ class ApproveSendBody(BaseModel):
     edited_body: str | None = None
 
 
+class BulkApproveBody(BaseModel):
+    # Optional: restrict to specific drafts the UI is showing. Server still
+    # re-checks that every one is GREEN before sending.
+    draft_ids: list[str] | None = None
+
+
 def _doctor_scope_ok(db: Session, user: User, conv: Conversation) -> bool:
     """Doctors see their own patients unless granted wider access (docs/03)."""
     if user.role is not Role.DOCTOR:
@@ -304,6 +310,21 @@ def approve_and_send(
     except inbox_service.InboxError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
     return {"ok": True, "message_id": out.id, "body": out.body}
+
+
+@router.post("/drafts/bulk-approve-green")
+def bulk_approve_green(
+    body: BulkApproveBody,
+    request: Request,
+    user: User = Depends(require(Permission.SEND_REPLY)),
+    db: Session = Depends(get_db),
+):
+    """Approve and send all GREEN drafted replies in one action (SPEC §2.1).
+    Reds and yellows are never included, even if their ids are passed in."""
+    return inbox_service.bulk_approve_green(
+        db, user=user, sms_provider=request.app.state.sms_provider,
+        draft_ids=body.draft_ids,
+    )
 
 
 @router.post("/webhooks/sms/inbound")

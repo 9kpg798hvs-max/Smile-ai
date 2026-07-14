@@ -22,6 +22,7 @@ from .models import (
     Patient,
     PhoneNumber,
     ReplyClassification,
+    Role,
     Urgency,
     User,
     Visit,
@@ -209,6 +210,7 @@ def approve_and_send_draft(
     draft: AIDraft,
     sms_provider,
     edited_body: str | None = None,
+    bulk: bool = False,
 ) -> Message:
     """The ONLY path that turns an AI draft into an outbound SMS. Requires an
     approving human; records approver and sender on the message."""
@@ -276,5 +278,65 @@ def approve_and_send_draft(
     conv.last_message_at = utcnow()
     audit(db, "reply.sent", user_id=user.id, practice_id=conv.practice_id,
           entity_type="message", entity_id=out.id,
-          details={"draft_id": draft.id, "edited": bool(draft.edited_body)})
+          details={"draft_id": draft.id, "edited": bool(draft.edited_body),
+                   "bulk": bulk})
     return out
+
+
+def _green_draft_ids_in_scope(db: Session, user: User, only: set[str] | None) -> list[str]:
+    """Suggested drafts whose inbound reply was classified GREEN, within the
+    user's scope. GREEN is re-checked here in the query — a yellow or red can
+    never enter a bulk send, even if its id is passed in explicitly."""
+    query = (
+        select(AIDraft.id)
+        .join(Message, AIDraft.message_id == Message.id)
+        .join(Conversation, Message.conversation_id == Conversation.id)
+        .join(ReplyClassification, ReplyClassification.message_id == Message.id)
+        .where(
+            AIDraft.status == DraftStatus.SUGGESTED,
+            ReplyClassification.urgency == Urgency.GREEN,
+        )
+    )
+    if user.practice_id is not None:
+        query = query.where(Conversation.practice_id == user.practice_id)
+    # Doctors bulk-send only their own patients unless granted wider access.
+    if user.role is Role.DOCTOR:
+        profile = db.get(DoctorProfile, user.id)
+        if not (profile and profile.wider_access):
+            query = query.where(Conversation.doctor_id == user.id)
+    ids = [row[0] for row in db.execute(query).all()]
+    if only is not None:
+        ids = [i for i in ids if i in only]
+    return ids
+
+
+def bulk_approve_green(
+    db: Session,
+    *,
+    user: User,
+    sms_provider,
+    draft_ids: list[str] | None = None,
+) -> dict:
+    """Approve and send every GREEN drafted reply in scope in one action
+    (SPEC §2.1 'All at once'). Each send goes through approve_and_send_draft,
+    so opt-out handling, provenance, and per-message audit are identical to
+    sending one by one. Reds and yellows are never included."""
+    only = set(draft_ids) if draft_ids is not None else None
+    target_ids = _green_draft_ids_in_scope(db, user, only)
+
+    sent, skipped = [], []
+    for draft_id in target_ids:
+        draft = db.get(AIDraft, draft_id)
+        if draft is None:
+            continue
+        try:
+            out = approve_and_send_draft(
+                db, user=user, draft=draft, sms_provider=sms_provider, bulk=True
+            )
+            sent.append({"draft_id": draft_id, "message_id": out.id})
+        except InboxError as e:
+            skipped.append({"draft_id": draft_id, "reason": e.detail})
+
+    audit(db, "reply.bulk_sent_green", user_id=user.id, practice_id=user.practice_id,
+          details={"sent": len(sent), "skipped": len(skipped)})
+    return {"sent": len(sent), "skipped": skipped}
