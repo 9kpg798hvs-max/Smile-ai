@@ -1,12 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { Me, api } from "./api";
+import Admin from "./pages/Admin";
+import Analytics from "./pages/Analytics";
 import Approvals from "./pages/Approvals";
 import Dashboard from "./pages/Dashboard";
 import Inbox from "./pages/Inbox";
 import Intake from "./pages/Intake";
 import Login from "./pages/Login";
+import Logs from "./pages/Logs";
 import Notifications from "./pages/Notifications";
+import Settings from "./pages/Settings";
+import Templates from "./pages/Templates";
 import Thread from "./pages/Thread";
 
 const MeContext = createContext<Me | null>(null);
@@ -80,6 +85,31 @@ function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
         <NavLink to="/notifications" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
           Notifications
         </NavLink>
+        {can("manage_templates") && (
+          <NavLink to="/templates" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Templates
+          </NavLink>
+        )}
+        {can("configure_send_times") && (
+          <NavLink to="/settings" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Settings
+          </NavLink>
+        )}
+        {can("view_analytics") && (
+          <NavLink to="/analytics" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Analytics
+          </NavLink>
+        )}
+        {can("view_delivery_logs") && (
+          <NavLink to="/logs" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Logs
+          </NavLink>
+        )}
+        {(can("manage_users") || can("manage_offices") || can("manage_phone_numbers")) && (
+          <NavLink to="/admin" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Admin
+          </NavLink>
+        )}
         <div className="spacer" />
         {anyMock && <div className="mock-banner">MOCK MODE — no real texts are sent</div>}
         <div className="whoami">
@@ -96,6 +126,11 @@ function Shell({ me, onLogout }: { me: Me; onLogout: () => void }) {
           <Route path="/approvals" element={<Approvals />} />
           <Route path="/intake" element={<Intake />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/logs" element={<Logs />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
